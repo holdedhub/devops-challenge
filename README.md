@@ -21,7 +21,8 @@ You can use the following folder structure or create your own:
 Build out some basic Infrastructure in AWS or GCP to deploy our [Golang server](app/server.go) that can be used in a repeatable way. 
 Bonus points for the following:
 
-* Use of Terraform
+* Use of Terraform.
+* Use of Kubernetes.
 * Clearly explaining why you're doing things a certain way.
 * Providing a PNG diagram of your infrastructure.
 
