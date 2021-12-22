@@ -10,7 +10,6 @@ provider "google" {
 #}
 
 data "google_client_config" "default" {}
-#data "google_compute_default_service_account" "default" {}
 
 module "network" {
   source  = "terraform-google-modules/network/google"
@@ -49,17 +48,28 @@ module "gke" {
   subnetwork                  = module.network.subnets_names[0]
   ip_range_pods               = module.network.subnets_secondary_ranges[0].*.range_name[0]
   ip_range_services           = module.network.subnets_secondary_ranges[0].*.range_name[1]
-#  compute_engine_service_account = google_compute_default_service_account.default.name
   create_service_account      = false
 
   node_pools = [
     {
       name                      = "node-pool"
       machine_type              = "e2-medium"
-#      node_locations            = "europe-west1-b,europe-west1-c,europe-west1-d"
       min_count                 = 1
       max_count                 = 2
       disk_size_gb              = 30
     },
   ]
+}
+
+module "gke_auth" {
+  source  = "terraform-google-modules/kubernetes-engine/google//modules/auth"
+  version = "17.3.0"
+  project_id           = var.project_id
+  cluster_name         = module.gke.name
+  location             = module.gke.location
+}
+
+resource "local_file" "kubeconfig" {
+  content  = module.gke_auth.kubeconfig_raw
+  filename = pathexpand("~/kubeconfig-gke")
 }
