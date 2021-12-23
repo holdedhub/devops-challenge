@@ -61,16 +61,3 @@ module "gke" {
   ]
 }
 
-module "gke_auth" {
-  source  = "terraform-google-modules/kubernetes-engine/google//modules/auth"
-  version = "17.3.0"
-  project_id           = var.project_id
-  cluster_name         = module.gke.name
-  location             = module.gke.location
-  depends_on           = [module.gke]
-}
-
-resource "local_file" "kubeconfig" {
-  content  = module.gke_auth.kubeconfig_raw
-  filename = pathexpand("~/kubeconfig-gke")
-}
