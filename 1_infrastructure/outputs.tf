@@ -20,3 +20,8 @@ output "master_kubernetes_version" {
   description = "The master Kubernetes version"
   value       = module.gke.master_version
 }
+
+output "repository_name" {
+  description = "Artifact Registry repository"
+  value = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.my-repo.repository_id}" 
+}
