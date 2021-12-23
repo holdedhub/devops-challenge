@@ -61,6 +61,12 @@ gsutil mb -p $PROJECT_ID -c REGIONAL -l europe-west6 -b on gs://devops-challenge
 ```
 Feel free to change the region at your convenience
 
+Enable object versioning for the bucket to keep old versions of the state
+```
+gsutil versioning set on gs://devops-challenge-tfstate
+```
+Note: It is recommended to set also a lifecycle rule to the bucket to automatically delete old versions
+
 ## Provision the infrastructure
 Before running the terraform commands you have to configure the credentials to authenticate with the GCP API. We will specify the service account key file created before using the GOOGLE_CREDENTIALS environment variable
 ```
@@ -80,6 +86,7 @@ terraform apply
 
 Finally, fetch the Kubernetes credentials to use with kubectl
 ```
-gcloud container clusters get-credentials $(terraform output -raw cluster_name) --region $(terraform output -raw region)
+gcloud container clusters get-credentials $(terraform output -raw cluster_name) \
+  --region $(terraform output -raw region)
 ```
 By default, credentials are written to ~/.kube/config. You can provide an alternate path by setting the `KUBECONFIG` environment variable.
