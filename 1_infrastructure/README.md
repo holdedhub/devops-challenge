@@ -59,6 +59,7 @@ Create a bucket on Google Cloud Storage (GCS) where Terraform store its state
 ```
 gsutil mb -p $PROJECT_ID -c REGIONAL -l europe-west6 -b on gs://devops-challenge-tfstate
 ```
+Feel free to change the region at your convenience
 
 ## Provision the infrastructure
 Before running the terraform commands you have to configure the credentials to authenticate with the GCP API. We will specify the service account key file created before using the GOOGLE_CREDENTIALS environment variable
@@ -66,12 +67,19 @@ Before running the terraform commands you have to configure the credentials to a
 export GOOGLE_CREDENTIALS=~/terraform-automation-key.json
 ```
 
-Run this command to download the required modules
+Edit the `terraform.tfvars` and set *your* project ID and the region. Alternatively, you can set the environment variables `GOOGLE_PROJECT` and `GOOGLE_REGION`
+
+Run this command to download the required modules and initialize the backend
 ```
 terraform init
 ```
-Finally, run this command to create the resouces
+Run this command to create the resouces
 ```
 terraform apply
 ```
 
+Finally, fetch the Kubernetes credentials to use with kubectl
+```
+gcloud container clusters get-credentials $(terraform output -raw cluster_name) --region $(terraform output -raw region)
+```
+By default, credentials are written to ~/.kube/config. You can provide an alternate path by setting the `KUBECONFIG` environment variable.
