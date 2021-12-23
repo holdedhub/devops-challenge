@@ -68,7 +68,7 @@ gsutil versioning set on gs://devops-challenge-tfstate
 Note: It is recommended to set also a lifecycle rule to the bucket to automatically delete old versions
 
 ## Provision the infrastructure
-Before running the terraform commands you have to configure the credentials to authenticate with the GCP API. We will specify the service account key file created before using the GOOGLE_CREDENTIALS environment variable
+Before running the terraform commands you have to configure the credentials to authenticate with the GCP API. We will specify the service account key file created before using the `GOOGLE_CREDENTIALS` environment variable
 ```
 export GOOGLE_CREDENTIALS=~/terraform-automation-key.json
 ```
@@ -90,6 +90,11 @@ gcloud container clusters get-credentials $(terraform output -raw cluster_name) 
   --region $(terraform output -raw region)
 ```
 By default, credentials are written to `~/.kube/config`. You can provide an alternate path by setting the `KUBECONFIG` environment variable.
+
+Verify that you can connect to your GKE cluster and see the nodes
+```
+kubectl get nodes
+```
 
 ## Clean up the resources
 To delete all the provisioned remote objects managed by Terraform, run
