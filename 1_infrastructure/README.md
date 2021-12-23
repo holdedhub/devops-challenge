@@ -89,4 +89,10 @@ Finally, fetch the Kubernetes credentials to use with kubectl
 gcloud container clusters get-credentials $(terraform output -raw cluster_name) \
   --region $(terraform output -raw region)
 ```
-By default, credentials are written to ~/.kube/config. You can provide an alternate path by setting the `KUBECONFIG` environment variable.
+By default, credentials are written to `~/.kube/config`. You can provide an alternate path by setting the `KUBECONFIG` environment variable.
+
+## Clean up the resources
+To delete all the provisioned remote objects managed by Terraform, run
+```
+terraform destroy
+```
