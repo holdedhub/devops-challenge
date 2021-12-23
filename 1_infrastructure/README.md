@@ -22,6 +22,16 @@ We save the project ID in a variable for later use
 ```
 PROJECT_ID=$(gcloud projects list --filter="name: devops-challenge" --format="value(projectId)")
 ```
+Before you can create resources, you have to link the project with a billing account. You can do it with the command
+```
+gcloud beta billing projects link $PROJECT_ID --billing-account=0X0X0X-0X0X0X-0X0X0X
+```
+Replace `0X0X0X-0X0X0X-0X0X0X` with your billing account ID
+
+Finally, enable the services you need to use with the command
+```
+gcloud services enable compute.googleapis.com container.googleapis.com
+```
 
 ## Create the Terraform service account
 These commands create the service account and grants the permissions
@@ -40,5 +50,28 @@ From a security perspective, we should enforce the principle of least privilege 
 
 Finally, we download the service account private key that will be used later with the terraform CLI
 ```
-gcloud iam service-accounts keys create ~/terraform-automation-key.json --iam-account="terraform-automation@$PROJECT_ID.iam.gserviceaccount.com"
+gcloud iam service-accounts keys create ~/terraform-automation-key.json \
+  --iam-account="terraform-automation@$PROJECT_ID.iam.gserviceaccount.com"
 ```
+
+## Create the Terraform backend storage
+Create a bucket on Google Cloud Storage (GCS) where Terraform store its state
+```
+gsutil mb -p $PROJECT_ID -c REGIONAL -l europe-west6 -b on gs://devops-challenge-tfstate
+```
+
+## Provision the infrastructure
+Before running the terraform commands you have to configure the credentials to authenticate with the GCP API. We will specify the service account key file created before using the GOOGLE_CREDENTIALS environment variable
+```
+export GOOGLE_CREDENTIALS=~/terraform-automation-key.json
+```
+
+Run this command to download the required modules
+```
+terraform init
+```
+Finally, run this command to create the resouces
+```
+terraform apply
+```
+
