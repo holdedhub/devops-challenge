@@ -1,5 +1,5 @@
 # Infrastructure provisioning
-This repo contains the instructions to deploy a GKE cluster using Terraform. The gcloud commands are provided but the same can be done from the GCP console
+This folder contains the instructions to deploy a GKE cluster using Terraform. The gcloud commands are provided but the same can be done from the GCP console
 
 ## Architecture
 We will create a highly available [regional cluster](https://cloud.google.com/kubernetes-engine/docs/concepts/regional-clusters#regional) with the control plane and nodes replicated across three zones of a region. 
@@ -91,9 +91,9 @@ gcloud container clusters get-credentials $(terraform output -raw cluster_name) 
 ```
 By default, credentials are written to `~/.kube/config`. You can provide an alternate path by setting the `KUBECONFIG` environment variable.
 
-Verify that you can connect to your GKE cluster and see the nodes
+Verify that you can connect to your GKE cluster and see some node details
 ```
-kubectl get nodes
+kubectl get nodes -o wide
 ```
 
 ## Clean up the resources
