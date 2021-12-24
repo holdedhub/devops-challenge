@@ -1,40 +1,68 @@
 package main
 
+
 import (
-  "fmt"
-  "log"
-  "net/http"
-  "time"
+    "fmt"
+    "log"
+    "net/http"
 )
 
-func appHandler(w http.ResponseWriter, r *http.Request) {
-
-  fmt.Println(time.Now(), "Hello from my new fresh server")
-
+type StatusRecorder struct {
+    http.ResponseWriter
+    Status int
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-  if r.URL.Path != "/healthz" {
-    http.Error(w, "404 not found.", http.StatusNotFound)
-    return
-  }
+func (r *StatusRecorder) WriteHeader(status int) {
+    r.Status = status
+    r.ResponseWriter.WriteHeader(status)
+}
 
-  if r.Method != "GET" {
-    http.Error(w, "Method is not supported.", http.StatusNotFound)
-    return
-  }
+func formHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != "POST" {
+        http.Error(w, "405 Method Not Allowed", http.StatusMethodNotAllowed)
+        return
+    }
 
-  fmt.Fprintf(w, "ok")
+    if err := r.ParseForm(); err != nil {
+        fmt.Fprintf(w, "ParseForm() err: %v", err)
+        return
+    }
+    name := r.FormValue("name")
+    address := r.FormValue("address")
+    fmt.Fprintf(w, "Name = %s\n", name)
+    fmt.Fprintf(w, "Address = %s\n", address)
+}
+
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != "GET" {
+        http.Error(w, "405 Method Not Allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    fmt.Fprintf(w, "Hello!")
+}
+
+func logRequest(h http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        recorder := &StatusRecorder{
+            ResponseWriter: w,
+            Status: 200,
+        }
+        h.ServeHTTP(recorder, r)
+        log.Println(r.RemoteAddr, r.Host, r.Method, r.RequestURI, r.ContentLength, recorder.Status)
+    })
 }
 
 func main() {
-  http.HandleFunc("/", appHandler)
-  http.HandleFunc("/healthz", healthHandler)
+    fileServer := http.FileServer(http.Dir("./static"))
+    http.Handle("/", fileServer)
+    http.HandleFunc("/form", formHandler)
+    http.HandleFunc("/hello", helloHandler)
 
-  log.Println("Started, serving on port 8080")
-  err := http.ListenAndServe(":8080", nil)
 
-  if err != nil {
-    log.Fatal(err.Error())
-  }
+    fmt.Printf("Starting server at port 8080\n")
+    if err := http.ListenAndServe(":8080", logRequest(http.DefaultServeMux)); err != nil {
+        log.Fatal(err)
+    }
 }
+

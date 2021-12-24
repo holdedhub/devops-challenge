@@ -41,14 +41,17 @@ We have created a service of type `ClusterIP` to use [container-native load bala
 
 Create a self-signed TLS certificate, using OpenSSL, to serve HTTPS requests
 ```
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout demo-app.key -out demo-app.crt -subj "/CN=app.example.com/O=Example"
+openssl req -x509 -newkey rsa:2048 -keyout demo-app.key -out demo-app.crt \
+  -subj "/CN=app.example.com/O=Example" -days 365 -nodes
+
 # Create a secret to allow Kubernetes use the TLS certificate
 kubectl create secret tls demo-app-secret --key demo-app.key --cert demo-app.crt
 ```
 
 Finally, create the Ingress resource with the service as a backend
 ```
-kubectl create ingress demo-app-ing --annotation=kubernetes.io/ingress.class=gce --rule="app.example.com/*=demo-app-svc:8080,tls=demo-app-secret"
+kubectl create ingress demo-app-ing --annotation=kubernetes.io/ingress.class=gce \
+  --rule="app.example.com/*=demo-app-svc:8080,tls=demo-app-secret"
 ```
 
 This Ingress automatically deploys an external load balancer in GCP and it will take some minutes to be available. Once the Ingress is ready, we can get the load balancer external IP address
@@ -58,7 +61,8 @@ EXTERNAL_IP=$(kubectl get ing demo-app-ing -o jsonpath="{.status.loadBalancer.in
 
 We can check the health status of the Pod backends with the command
 ```
-gcloud compute backend-services get-health "$(gcloud compute backend-services list --filter="name~demo-app" --format="value(name)")" --global
+gcloud compute backend-services get-health "$(gcloud compute backend-services list \
+  --filter="name~demo-app" --format="value(name)")" --global
 ```
 
 To test the application we can request the endpoint url and check the Pod logs
