@@ -15,7 +15,7 @@ We build the image of the [original application](../app) locally and push it to 
 REGION=$(terraform -chdir=../1_infrastructure output -raw region)
 IMAGE=$(terraform -chdir=../1_infrastructure output -raw repository_name)/demo-app:v1
 # Create the container image
-docker build -f Dockerfile.v1 -t $IMAGE .
+docker build --build-arg SOURCE=https://raw.githubusercontent.com/mikakatua/devops-challenge/master/app/server.go -t $IMAGE .
 ```
 
 This step is only requred if you have never pushed an image to GCP Artifact Registry. Then, you have to configure the credential helper to authenticate with the registry
