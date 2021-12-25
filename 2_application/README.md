@@ -48,9 +48,24 @@ openssl req -x509 -newkey rsa:2048 -keyout demo-app.key -out demo-app.crt \
 kubectl create secret tls demo-app-secret --key demo-app.key --cert demo-app.crt
 ```
 
-Finally, create the Ingress resource with the service as a backend
+We want to use the Ingress feature to redirect HTTP traffic to HTTPS. The `FrontendConfig` custom resource definition (CRD) allows us to further customize the load balancer
+```
+cat <<! | kubectl apply -f -
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: http-to-https
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+!
+```
+
+Finally, create the Ingress resource specifying the service as a backend and the secret containing the TLS certificate
 ```
 kubectl create ingress demo-app-ing --annotation=kubernetes.io/ingress.class=gce \
+  --annotation=networking.gke.io/v1beta1.FrontendConfig=http-to-https \
   --rule="app.example.com/*=demo-app-svc:8080,tls=demo-app-secret"
 ```
 
