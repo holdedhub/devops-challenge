@@ -1,25 +1,25 @@
 package main
 
 import (
-  "fmt"
-  "log"
-  "net/http"
-  "time"
+	"fmt"
+	"log"
+	"net/http"
+	"time"
 )
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
 
-  fmt.Println(time.Now(), "Hello from my new fresh server")
+	fmt.Println(time.Now(), "Hello from my fresh new server")
 
 }
 
 func main() {
-  http.HandleFunc("/", appHandler)
+	http.HandleFunc("/", appHandler)
 
-  log.Println("Started, serving on port 8080")
-  err := http.ListenAndServe(":8080", nil)
+	log.Println("Started, serving on port 8080")
+	err := http.ListenAndServe(":8080", nil)
 
-  if err != nil {
-    log.Fatal(err.Error())
-  }
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
